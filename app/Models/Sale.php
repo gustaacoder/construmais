@@ -50,12 +50,12 @@ class Sale extends Model
     {
         $subtotal = (float) $this->items()->sum('line_total');
         if ($subtotal <= 0) {
-            $subtotal = $this->items->sum(fn($it) => $it->quantity * (float) $it->unit_price - (float) $it->discount);
+            $subtotal = $this->items->sum(fn ($it) => $it->quantity * (float) $it->unit_price - (float) $it->discount);
         }
 
         $discount = (float) ($this->discount_total ?? 0);
         $surcharge = (float) ($this->surcharge_total ?? 0);
-        
+
         $totals = \App\DTOs\SaleTotalsDTO::fromSaleData(
             items: $this->items->toArray(),
             discountTotal: $discount,
@@ -68,5 +68,8 @@ class Sale extends Model
         $this->grand_total = $totals->grandTotal;
     }
 
-    public function scopeConfirmed($q) { return $q->where('status', 'confirmed'); }
+    public function scopeConfirmed($q)
+    {
+        return $q->where('status', 'confirmed');
+    }
 }

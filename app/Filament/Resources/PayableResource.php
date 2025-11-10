@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PayableResource\Pages;
-use App\Filament\Resources\PayableResource\RelationManagers;
 use App\Models\Payable;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PayableResource extends Resource
 {
@@ -20,6 +17,7 @@ class PayableResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
 
     protected static ?string $pluralLabel = 'Pagamentos';
+
     protected static ?string $label = 'Pagamento';
 
     public static function form(Form $form): Form

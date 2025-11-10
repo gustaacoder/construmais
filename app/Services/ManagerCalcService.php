@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\FinancialMetricsServiceInterface;
-use App\Models\{Sale, StockEntry, ManagementSetting, Payable, Receivable};
+use App\Models\Payable;
+use App\Models\Receivable;
+use App\Models\Sale;
 use Illuminate\Support\Carbon;
 
 class ManagerCalcService implements FinancialMetricsServiceInterface
@@ -54,6 +56,7 @@ class ManagerCalcService implements FinancialMetricsServiceInterface
         $avg = $receivables->avg(function (Receivable $r) {
             $issueDate = Carbon::parse($r->issue_date);
             $dueDate = Carbon::parse($r->due_date);
+
             return ($dueDate->timestamp - $issueDate->timestamp) / 86400;
         });
 
@@ -71,6 +74,7 @@ class ManagerCalcService implements FinancialMetricsServiceInterface
         $avg = $payables->avg(function (Payable $p) {
             $issueDate = Carbon::parse($p->issue_date);
             $dueDate = Carbon::parse($p->due_date);
+
             return ($dueDate->timestamp - $issueDate->timestamp) / 86400;
         });
 
@@ -84,7 +88,7 @@ class ManagerCalcService implements FinancialMetricsServiceInterface
 
         return [
             'operating_cycle' => round($oper, 2),
-            'cash_cycle'      => round($cash, 2),
+            'cash_cycle' => round($cash, 2),
         ];
     }
 
@@ -93,7 +97,7 @@ class ManagerCalcService implements FinancialMetricsServiceInterface
         if ($cashCycleDays == 0.0) {
             return null;
         }
+
         return round($expenseForecastYear / ($cashCycleDays / 360), 2);
     }
 }
-

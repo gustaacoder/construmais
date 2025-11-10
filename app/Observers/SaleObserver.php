@@ -32,7 +32,7 @@ class SaleObserver
 
     protected function syncReceivables(Sale $sale): void
     {
-        if (!$this->createReceivablesAction->shouldSyncReceivables($sale)) {
+        if (! $this->createReceivablesAction->shouldSyncReceivables($sale)) {
             return;
         }
 

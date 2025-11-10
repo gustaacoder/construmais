@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('issue_date')->nullable();
             $table->date('due_date');
             $table->decimal('amount', 14, 2);
-            $table->enum('status', ['open','paid','overdue'])->default('open');
-            $table->index(['due_date','status']);
+            $table->enum('status', ['open', 'paid', 'overdue'])->default('open');
+            $table->index(['due_date', 'status']);
             $table->timestamps();
         });
     }

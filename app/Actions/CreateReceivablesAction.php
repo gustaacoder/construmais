@@ -12,8 +12,7 @@ class CreateReceivablesAction
     /**
      * Create receivables for a confirmed sale
      *
-     * @param Sale $sale The sale to create receivables for
-     * @return void
+     * @param  Sale  $sale  The sale to create receivables for
      */
     public function execute(Sale $sale): void
     {
@@ -31,8 +30,8 @@ class CreateReceivablesAction
             $firstTermDays = $sale->custom_terms ?? ($termsMap[$sale->payment_method] ?? 0);
 
             $installments = $sale->installments ?: 1;
-            $amountEach = $installments > 0 
-                ? round($sale->grand_total / $installments, 2) 
+            $amountEach = $installments > 0
+                ? round($sale->grand_total / $installments, 2)
                 : (float) $sale->grand_total;
 
             $firstDue = Carbon::parse($sale->sale_date)->addDays($firstTermDays);
@@ -53,8 +52,7 @@ class CreateReceivablesAction
     /**
      * Delete open or overdue receivables for a sale
      *
-     * @param Sale $sale The sale to delete receivables for
-     * @return void
+     * @param  Sale  $sale  The sale to delete receivables for
      */
     public function deleteOpenReceivables(Sale $sale): void
     {
@@ -64,7 +62,7 @@ class CreateReceivablesAction
     /**
      * Check if receivables need to be synced
      *
-     * @param Sale $sale The sale to check
+     * @param  Sale  $sale  The sale to check
      * @return bool True if receivables should be synced
      */
     public function shouldSyncReceivables(Sale $sale): bool
@@ -76,7 +74,7 @@ class CreateReceivablesAction
                 'payment_method',
                 'custom_terms',
                 'grand_total',
-                'status'
+                'status',
             ]);
     }
 }

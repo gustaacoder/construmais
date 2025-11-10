@@ -52,8 +52,7 @@ class Product extends Model
     /**
      * Check if there's sufficient stock for a quantity
      *
-     * @param int $quantity Required quantity
-     * @return bool
+     * @param  int  $quantity  Required quantity
      */
     public function hasSufficientStock(int $quantity): bool
     {
@@ -63,7 +62,7 @@ class Product extends Model
     /**
      * Scope to filter products with low stock
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeLowStock($query)
@@ -71,5 +70,8 @@ class Product extends Model
         return $query->whereColumn('stock_on_hand', '<=', 'min_stock');
     }
 
-    public function scopeActive($q) { return $q->where('is_active', true); }
+    public function scopeActive($q)
+    {
+        return $q->where('is_active', true);
+    }
 }

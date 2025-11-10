@@ -11,8 +11,7 @@ class CreatePayableAction
     /**
      * Create or update a payable for a stock entry
      *
-     * @param StockEntry $entry The stock entry to create payable for
-     * @return void
+     * @param  StockEntry  $entry  The stock entry to create payable for
      */
     public function execute(StockEntry $entry): void
     {
@@ -24,6 +23,7 @@ class CreatePayableAction
 
         if ($existing) {
             $this->updateExistingPayable($existing, $documentNo, $entry->entry_date, $dueDate, $amount);
+
             return;
         }
 
@@ -33,8 +33,7 @@ class CreatePayableAction
     /**
      * Delete open or overdue payables for a stock entry
      *
-     * @param StockEntry $entry The stock entry to delete payables for
-     * @return void
+     * @param  StockEntry  $entry  The stock entry to delete payables for
      */
     public function deleteOpenPayables(StockEntry $entry): void
     {
@@ -44,7 +43,7 @@ class CreatePayableAction
     /**
      * Calculate the total amount for the payable
      *
-     * @param StockEntry $entry The stock entry
+     * @param  StockEntry  $entry  The stock entry
      * @return float The calculated amount
      */
     private function calculateAmount(StockEntry $entry): float
@@ -55,7 +54,7 @@ class CreatePayableAction
     /**
      * Calculate the due date for the payable
      *
-     * @param StockEntry $entry The stock entry
+     * @param  StockEntry  $entry  The stock entry
      * @return Carbon The calculated due date
      */
     private function calculateDueDate(StockEntry $entry): Carbon
@@ -66,7 +65,7 @@ class CreatePayableAction
     /**
      * Generate document number for the payable
      *
-     * @param StockEntry $entry The stock entry
+     * @param  StockEntry  $entry  The stock entry
      * @return string The document number
      */
     private function generateDocumentNo(StockEntry $entry): string
@@ -77,12 +76,11 @@ class CreatePayableAction
     /**
      * Update an existing payable if not paid
      *
-     * @param Payable $payable The existing payable
-     * @param string $documentNo The document number
-     * @param mixed $issueDate The issue date
-     * @param Carbon $dueDate The due date
-     * @param float $amount The amount
-     * @return void
+     * @param  Payable  $payable  The existing payable
+     * @param  string  $documentNo  The document number
+     * @param  mixed  $issueDate  The issue date
+     * @param  Carbon  $dueDate  The due date
+     * @param  float  $amount  The amount
      */
     private function updateExistingPayable(
         Payable $payable,
@@ -106,11 +104,10 @@ class CreatePayableAction
     /**
      * Create a new payable
      *
-     * @param StockEntry $entry The stock entry
-     * @param string $documentNo The document number
-     * @param Carbon $dueDate The due date
-     * @param float $amount The amount
-     * @return void
+     * @param  StockEntry  $entry  The stock entry
+     * @param  string  $documentNo  The document number
+     * @param  Carbon  $dueDate  The due date
+     * @param  float  $amount  The amount
      */
     private function createNewPayable(
         StockEntry $entry,

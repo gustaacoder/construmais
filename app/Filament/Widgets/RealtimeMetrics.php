@@ -2,22 +2,23 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\ManagementSetting;
+use App\Services\ManagerCalcService;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use App\Services\ManagerCalcService;
-use App\Models\ManagementSetting;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
 
 class RealtimeMetrics extends BaseWidget implements HasForms
 {
-
     use InteractsWithForms;
 
     public ?string $from = null;
+
     public ?string $to = null;
+
     public ?float $expenseForecast = null;
 
     protected function getFormSchema(): array
@@ -48,11 +49,11 @@ class RealtimeMetrics extends BaseWidget implements HasForms
     protected function getStats(): array
     {
         $from = Carbon::parse($this->from ?? now()->subDays(120));
-        $to   = Carbon::parse($this->to ?? now());
+        $to = Carbon::parse($this->to ?? now());
 
-        $svc  = app(ManagerCalcService::class);
+        $svc = app(ManagerCalcService::class);
         $base = $svc->compute($from, $to);
-        $cyc  = $svc->cycles($base['pmre'], $base['pmrv'], $base['pmpf']);
+        $cyc = $svc->cycles($base['pmre'], $base['pmrv'], $base['pmpf']);
 
         $minCash = $svc->minCash(
             $cyc['cash_cycle'],

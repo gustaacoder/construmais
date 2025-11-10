@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['entry_date','supplier_id','product_id']);
+            $table->index(['entry_date', 'supplier_id', 'product_id']);
         });
     }
 

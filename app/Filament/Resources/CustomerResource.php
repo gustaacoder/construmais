@@ -3,21 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages;
-use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
     protected static ?string $pluralLabel = 'Clientes';
+
     protected static ?string $label = 'Cliente';
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
@@ -48,7 +46,7 @@ class CustomerResource extends Resource
                 Forms\Components\TextInput::make('city')
                     ->label(__('City'))
                     ->maxLength(255),
-            Forms\Components\TextInput::make('state')
+                Forms\Components\TextInput::make('state')
                     ->label(__('State'))
                     ->maxLength(2),
                 Forms\Components\TextInput::make('zip')

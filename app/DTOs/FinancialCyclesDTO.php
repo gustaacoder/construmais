@@ -16,11 +16,10 @@ class FinancialCyclesDTO
     /**
      * Create from individual metrics
      *
-     * @param float $pmre Average inventory turnover period
-     * @param float $pmrv Average receivables collection period
-     * @param float $pmpf Average payables payment period
-     * @param float|null $annualExpenses Optional annual expenses for minimum cash calculation
-     * @return self
+     * @param  float  $pmre  Average inventory turnover period
+     * @param  float  $pmrv  Average receivables collection period
+     * @param  float  $pmpf  Average payables payment period
+     * @param  float|null  $annualExpenses  Optional annual expenses for minimum cash calculation
      */
     public static function fromMetrics(
         float $pmre,
@@ -30,7 +29,7 @@ class FinancialCyclesDTO
     ): self {
         $operatingCycle = round($pmre + $pmrv, 2);
         $cashCycle = round($operatingCycle - $pmpf, 2);
-        
+
         $minimumCash = null;
         if ($annualExpenses !== null && $cashCycle > 0) {
             $minimumCash = round($annualExpenses / ($cashCycle / 360), 2);
@@ -48,8 +47,6 @@ class FinancialCyclesDTO
 
     /**
      * Convert to array
-     *
-     * @return array
      */
     public function toArray(): array
     {

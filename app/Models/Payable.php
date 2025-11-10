@@ -31,6 +31,13 @@ class Payable extends Model
         $this->update(['status' => 'paid']);
     }
 
-    public function scopeOpen($q) { return $q->where('status', 'open'); }
-    public function scopeOverdue($q) { return $q->where('status', 'overdue'); }
+    public function scopeOpen($q)
+    {
+        return $q->where('status', 'open');
+    }
+
+    public function scopeOverdue($q)
+    {
+        return $q->where('status', 'overdue');
+    }
 }

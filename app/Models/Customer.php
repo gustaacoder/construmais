@@ -21,10 +21,14 @@ class Customer extends Model
         'zip',
         'country',
     ];
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
     }
 
-    public function scopeActive($q) { return $q->where('is_active', true); }
+    public function scopeActive($q)
+    {
+        return $q->where('is_active', true);
+    }
 }

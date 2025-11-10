@@ -3,21 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ManagementSettingResource\Pages;
-use App\Filament\Resources\ManagementSettingResource\RelationManagers;
 use App\Models\ManagementSetting;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ManagementSettingResource extends Resource
 {
     protected static ?string $model = ManagementSetting::class;
 
     protected static ?string $pluralLabel = 'Configurações';
+
     protected static ?string $label = 'Configuração de Gerenciamento';
 
     protected static ?string $navigationIcon = 'heroicon-m-cog-6-tooth';

@@ -35,17 +35,17 @@ class SaleItem extends Model
 
     protected static function booted(): void
     {
-        static::saving(function (SaleItem $item){
+        static::saving(function (SaleItem $item) {
             if (empty($item->line_total)) {
                 $item->line_total = $item->computeLineTotal();
             }
         });
 
-        static::saved(function (SaleItem $item){
+        static::saved(function (SaleItem $item) {
             $item->sale?->recalcTotals();
         });
 
-        static::deleted(function (SaleItem $item){
+        static::deleted(function (SaleItem $item) {
             $item->sale?->recalcTotals();
         });
     }

@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SaleResource\Pages;
-use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Sale;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -17,13 +15,13 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SaleResource extends Resource
 {
     protected static ?string $model = Sale::class;
+
     protected static ?string $pluralLabel = 'Vendas';
+
     protected static ?string $label = 'Venda';
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
@@ -61,7 +59,7 @@ class SaleResource extends Resource
                             ->label(__('Sale Date'))
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                         Select::make('customer_id')
                             ->relationship('customer', 'name')
                             ->label(__('Customer'))
@@ -71,30 +69,30 @@ class SaleResource extends Resource
                             ->label(__('Payment Method'))
                             ->options(['pix' => 'Pix', 'debit' => (__('Debit')), 'credit' => (__('Credit'))])
                             ->native(false)->live()
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                         TextInput::make('custom_terms')
                             ->numeric()
                             ->label(__('Custom Terms'))
                             ->minValue(0)
                             ->live(onBlur: true)
                             ->helperText(__('If filled, overrides payment_method (days).'))
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                         TextInput::make('installments')
                             ->label(__('Installments'))
                             ->numeric()
                             ->minValue(1)
                             ->default(1)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                         Select::make('status')
                             ->options([
                                 'draft' => (__('Draft')),
                                 'confirmed' => (__('Confirmed')),
-                                'cancelled' => (__('Cancelled'))
+                                'cancelled' => (__('Cancelled')),
                             ])
                             ->default('confirmed')
                             ->live()
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                     ])->columns(3),
 
                 Section::make(__('Items'))
@@ -113,7 +111,7 @@ class SaleResource extends Resource
                                     ->searchable()
                                     ->columnSpan(2)
                                     ->live()
-                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                    ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                                 TextInput::make('quantity')
                                     ->label(__('Quantity'))
                                     ->numeric()
@@ -121,14 +119,14 @@ class SaleResource extends Resource
                                     ->default(1)
                                     ->required()
                                     ->live()
-                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                    ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                                 TextInput::make('unit_price')
                                     ->label(__('Unit Price'))
                                     ->numeric()
                                     ->prefix('R$')
                                     ->required()
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                    ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                                 TextInput::make('discount')
                                     ->label(__('Discount'))
                                     ->numeric()
@@ -136,9 +134,9 @@ class SaleResource extends Resource
                                     ->default(0)
                                     ->live(onBlur: true)
                                     ->helperText(__('Per-item discount'))
-                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                    ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                             ])
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                     ]),
 
                 Section::make('Totals')
@@ -154,7 +152,7 @@ class SaleResource extends Resource
                             ->prefix('R$')
                             ->default(0)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
 
                         TextInput::make('freight')
                             ->label(__('Freight'))
@@ -162,14 +160,14 @@ class SaleResource extends Resource
                             ->prefix('R$')
                             ->default(0)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
                         TextInput::make('extra_fee')
                             ->label(__('Extra Fee / Card Fee / Interest'))
                             ->numeric()
                             ->prefix('R$')
                             ->default(0)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ->afterStateUpdated(fn (Set $set, Get $get) => $recalc($set, $get)),
 
                         TextInput::make('surcharge_total')
                             ->label(__('Surcharge Total'))

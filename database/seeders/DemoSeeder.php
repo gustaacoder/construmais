@@ -11,10 +11,10 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\StockEntry;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class DemoSeeder extends Seeder
 {

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->enum('payment_method', ['pix', 'debit', 'credit'])->nullable();
             $table->unsignedInteger('custom_terms')->nullable();
-            $table->enum('status', ['draft','confirmed','cancelled'])->default('confirmed');
+            $table->enum('status', ['draft', 'confirmed', 'cancelled'])->default('confirmed');
 
             $table->decimal('subtotal', 14, 2)->default(0);
             $table->decimal('discount_total', 14, 2)->default(0);
@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['sale_date','customer_id','status']);
+            $table->index(['sale_date', 'customer_id', 'status']);
         });
     }
 

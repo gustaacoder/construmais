@@ -14,10 +14,9 @@ class SaleTotalsDTO
     /**
      * Create from sale items and adjustment values
      *
-     * @param array $items Array of sale items
-     * @param float $discountTotal Total discount amount
-     * @param float $surchargeTotal Total surcharge amount
-     * @return self
+     * @param  array  $items  Array of sale items
+     * @param  float  $discountTotal  Total discount amount
+     * @param  float  $surchargeTotal  Total surcharge amount
      */
     public static function fromSaleData(
         array $items,
@@ -30,7 +29,7 @@ class SaleTotalsDTO
             $quantity = (int) ($item['quantity'] ?? $item->quantity ?? 0);
             $unitPrice = (float) ($item['unit_price'] ?? $item->unit_price ?? 0);
             $discount = (float) ($item['discount'] ?? $item->discount ?? 0);
-            
+
             $lineTotal = max(0, ($quantity * $unitPrice) - $discount);
             $subtotal += $lineTotal;
         }
@@ -47,8 +46,6 @@ class SaleTotalsDTO
 
     /**
      * Convert to array
-     *
-     * @return array
      */
     public function toArray(): array
     {

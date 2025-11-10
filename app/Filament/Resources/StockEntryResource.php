@@ -3,20 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StockEntryResource\Pages;
-use App\Filament\Resources\StockEntryResource\RelationManagers;
 use App\Models\StockEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StockEntryResource extends Resource
 {
     protected static ?string $model = StockEntry::class;
+
     protected static ?string $pluralLabel = 'Entradas de Estoque';
+
     protected static ?string $label = 'Entrada de Estoque';
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
