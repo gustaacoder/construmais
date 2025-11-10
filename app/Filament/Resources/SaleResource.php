@@ -6,7 +6,14 @@ use App\Filament\Resources\SaleResource\Pages;
 use App\Filament\Resources\SaleResource\RelationManagers;
 use App\Models\Sale;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,50 +30,156 @@ class SaleResource extends Resource
 
     public static function form(Form $form): Form
     {
+
+        $recalc = function (Set $set, Get $get) {
+            $items = $get('items') ?? [];
+            $subtotal = 0;
+            foreach ($items as $it) {
+                $qty = (int) ($it['quantity'] ?? 0);
+                $price = (float) ($it['unit_price'] ?? 0);
+                $disc = (float) ($it['discount'] ?? 0);
+                $subtotal += max(0, ($qty * $price) - $disc);
+            }
+
+            $discountTotal = (float) ($get('discount_total') ?? 0);
+            $freight = (float) ($get('freight') ?? 0);
+            $extraFee = (float) ($get('extra_fee') ?? 0);
+            $surchargeTotal = $freight + $extraFee;
+
+            $grand = max(0, $subtotal - $discountTotal + $surchargeTotal);
+
+            $set('subtotal', round($subtotal, 2));
+            $set('surcharge_total', round($surchargeTotal, 2));
+            $set('grand_total', round($grand, 2));
+        };
+
         return $form
             ->schema([
-                Forms\Components\DatePicker::make('sale_date')
-                    ->label(__('Sale Date'))
-                    ->required(),
-                Forms\Components\Select::make('customer_id')
-                    ->relationship('customer', 'name')
-                    ->label(__('Customer'))
-                    ->required(),
-                Forms\Components\TextInput::make('payment_method')
-                    ->label(__('Payment Method')),
-                Forms\Components\TextInput::make('custom_terms')
-                    ->label(__('Custom Terms'))
-                    ->numeric(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
-                Forms\Components\TextInput::make('subtotal')
-                    ->label(__('Subtotal'))
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('discount_total')
-                    ->label(__('Discount Total'))
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('surcharge_total')
-                    ->label(__('Surcharge Total'))
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('grand_total')
-                    ->label(__('Grand Total'))
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('installments')
-                    ->label(__('Installments'))
-                    ->numeric(),
-                Forms\Components\DatePicker::make('due_date')
-                    ->label(__('Due Date')),
-                Forms\Components\Textarea::make('notes')
-                    ->label(__('Notes'))
-                    ->columnSpanFull(),
+                Section::make(__('Sale Data'))
+                    ->schema([
+                        DatePicker::make('sale_date')
+                            ->label(__('Sale Date'))
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                        Select::make('customer_id')
+                            ->relationship('customer', 'name')
+                            ->label(__('Customer'))
+                            ->required()
+                            ->searchable(),
+                        Select::make('payment_method')
+                            ->label(__('Payment Method'))
+                            ->options(['pix' => 'Pix', 'debit' => (__('Debit')), 'credit' => (__('Credit'))])
+                            ->native(false)->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                        TextInput::make('custom_terms')
+                            ->numeric()
+                            ->label(__('Custom Terms'))
+                            ->minValue(0)
+                            ->live(onBlur: true)
+                            ->helperText(__('If filled, overrides payment_method (days).'))
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                        TextInput::make('installments')
+                            ->label(__('Installments'))
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(1)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                        Select::make('status')
+                            ->options([
+                                'draft' => (__('Draft')),
+                                'confirmed' => (__('Confirmed')),
+                                'cancelled' => (__('Cancelled'))
+                            ])
+                            ->default('confirmed')
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                    ])->columns(3),
+
+                Section::make(__('Items'))
+                    ->schema([
+                        Repeater::make('items')
+                            ->label(__('Items'))
+                            ->relationship()
+                            ->minItems(1)
+                            ->defaultItems(1)
+                            ->columns(4)
+                            ->schema([
+                                Select::make('product_id')
+                                    ->relationship('product', 'name')
+                                    ->label(__('Product'))
+                                    ->required()
+                                    ->searchable()
+                                    ->columnSpan(2)
+                                    ->live()
+                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                TextInput::make('quantity')
+                                    ->label(__('Quantity'))
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->default(1)
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                TextInput::make('unit_price')
+                                    ->label(__('Unit Price'))
+                                    ->numeric()
+                                    ->prefix('R$')
+                                    ->required()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                                TextInput::make('discount')
+                                    ->label(__('Discount'))
+                                    ->numeric()
+                                    ->prefix('R$')
+                                    ->default(0)
+                                    ->live(onBlur: true)
+                                    ->helperText(__('Per-item discount'))
+                                    ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                            ])
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                    ]),
+
+                Section::make('Totals')
+                    ->schema([
+                        TextInput::make('subtotal')
+                            ->label('Subtotal')
+                            ->prefix('R$')
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('discount_total')
+                            ->label(__('Discount Total'))
+                            ->numeric()
+                            ->prefix('R$')
+                            ->default(0)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+
+                        TextInput::make('freight')
+                            ->label(__('Freight'))
+                            ->numeric()
+                            ->prefix('R$')
+                            ->default(0)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+                        TextInput::make('extra_fee')
+                            ->label(__('Extra Fee / Card Fee / Interest'))
+                            ->numeric()
+                            ->prefix('R$')
+                            ->default(0)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, Get $get) => $recalc($set, $get)),
+
+                        TextInput::make('surcharge_total')
+                            ->label(__('Surcharge Total'))
+                            ->prefix('R$')
+                            ->disabled(),
+                        TextInput::make('grand_total')
+                            ->label(__('Grand Total'))
+                            ->prefix('R$')
+                            ->disabled(),
+                    ])->columns(2),
             ]);
     }
 

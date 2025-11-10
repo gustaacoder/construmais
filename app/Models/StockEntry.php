@@ -12,7 +12,7 @@ class StockEntry extends Model
         'entry_date',
         'supplier_id',
         'product_id',
-        'unit_cost',
+        'quantity',
         'purchase_price',
         'supplier_payment_terms',
         'invoice_number',

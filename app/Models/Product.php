@@ -17,7 +17,6 @@ class Product extends Model
         'avg_cost',
         'sale_price',
         'min_stock',
-        'is_active',
     ];
 
     protected $appends = ['stock_on_hand'];

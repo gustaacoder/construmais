@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('entry_date');
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->decimal('unit_cost', 12, 2)->default(0);
+            $table->decimal('quantity');
             $table->decimal('purchase_price', 12, 2);
             $table->unsignedInteger('supplier_payment_terms')->default(0);
 
