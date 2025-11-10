@@ -55,12 +55,17 @@ class Sale extends Model
 
         $discount = (float) ($this->discount_total ?? 0);
         $surcharge = (float) ($this->surcharge_total ?? 0);
-        $grand = max(0, $subtotal - $discount + $surcharge);
+        
+        $totals = \App\DTOs\SaleTotalsDTO::fromSaleData(
+            items: $this->items->toArray(),
+            discountTotal: $discount,
+            surchargeTotal: $surcharge
+        );
 
-        $this->subtotal = round($subtotal, 2);
-        $this->discount_total = round($discount, 2);
-        $this->surcharge_total = round($surcharge, 2);
-        $this->grand_total = round($grand, 2);
+        $this->subtotal = $totals->subtotal;
+        $this->discount_total = $totals->discountTotal;
+        $this->surcharge_total = $totals->surchargeTotal;
+        $this->grand_total = $totals->grandTotal;
     }
 
     public function scopeConfirmed($q) { return $q->where('status', 'confirmed'); }

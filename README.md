@@ -1,59 +1,246 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ConstruMais - Sistema de Gestão para Materiais de Construção
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema completo de gestão empresarial desenvolvido em Laravel 12 com Filament 3, focado no setor de materiais de construção.
 
-## About Laravel
+## 📋 Funcionalidades
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Gestão de Vendas**: Controle completo de vendas com múltiplas formas de pagamento
+- **Gestão de Estoque**: Controle de entrada e saída de produtos
+- **Gestão Financeira**: Contas a receber e a pagar
+- **Gestão de Clientes e Fornecedores**: Cadastro completo
+- **Dashboard Gerencial**: Métricas financeiras e ciclos operacionais
+- **Cálculos Financeiros**: PMRE, PMRV, PMPF, Ciclo Operacional e Ciclo de Caixa
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🏗️ Arquitetura do Projeto
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Estrutura de Diretórios
 
-## Learning Laravel
+```
+app/
+├── Actions/              # Ações de negócio isoladas
+│   ├── CreateReceivablesAction.php
+│   └── CreatePayableAction.php
+├── Contracts/            # Interfaces de serviços
+│   └── FinancialMetricsServiceInterface.php
+├── DTOs/                 # Data Transfer Objects
+│   ├── SaleTotalsDTO.php
+│   └── FinancialCyclesDTO.php
+├── Exceptions/           # Exceções customizadas
+│   ├── InvalidSaleDataException.php
+│   └── InsufficientStockException.php
+├── Filament/            # Recursos do Filament Admin
+│   ├── Pages/
+│   ├── Resources/
+│   └── Widgets/
+├── Models/              # Modelos Eloquent
+├── Observers/           # Observers de modelos
+├── Providers/           # Service Providers
+└── Services/            # Camada de serviços
+    └── ManagerCalcService.php
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Padrões Arquiteturais Implementados
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### 1. **Service Layer Pattern**
+- Interface `FinancialMetricsServiceInterface` define contratos
+- `ManagerCalcService` implementa lógica de cálculos financeiros
+- Separação clara entre lógica de negócio e apresentação
 
-## Laravel Sponsors
+#### 2. **Action Pattern**
+- `CreateReceivablesAction`: Gerencia criação de recebíveis
+- `CreatePayableAction`: Gerencia criação de contas a pagar
+- Ações isoladas, testáveis e reutilizáveis
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### 3. **Data Transfer Objects (DTOs)**
+- `SaleTotalsDTO`: Encapsula cálculos de totais de venda
+- `FinancialCyclesDTO`: Encapsula métricas de ciclos financeiros
+- Imutabilidade e type safety
 
-### Premium Partners
+#### 4. **Observer Pattern**
+- `SaleObserver`: Automatiza criação de recebíveis
+- `StockEntryObserver`: Automatiza criação de contas a pagar
+- Delegação para Actions mantém observers limpos
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### 5. **Exception Handling**
+- Exceções customizadas para contextos específicos
+- Mensagens de erro em português para melhor UX
+- Facilita debugging e tratamento de erros
 
-## Contributing
+### Camadas da Aplicação
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+┌─────────────────────────────────────┐
+│     Filament Admin Panel (UI)      │
+├─────────────────────────────────────┤
+│      Resources & Pages Layer       │
+├─────────────────────────────────────┤
+│        Business Logic Layer         │
+│  (Actions, Services, Observers)     │
+├─────────────────────────────────────┤
+│         Data Access Layer           │
+│      (Models, Eloquent ORM)         │
+├─────────────────────────────────────┤
+│           Database Layer            │
+└─────────────────────────────────────┘
+```
 
-## Code of Conduct
+## 🔧 Tecnologias Utilizadas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Laravel 12**: Framework PHP moderno
+- **Filament 3**: Admin panel elegante e poderoso
+- **SQLite**: Banco de dados (configurável para MySQL/PostgreSQL)
+- **PHP 8.2+**: Tipagem forte, readonly properties
+- **Vite**: Build tool para assets
 
-## Security Vulnerabilities
+## 📊 Modelos de Dados
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Principais Entidades
 
-## License
+- **Product**: Produtos do catálogo
+- **Customer**: Clientes
+- **Supplier**: Fornecedores
+- **Sale**: Vendas realizadas
+- **SaleItem**: Itens da venda
+- **StockEntry**: Entradas de estoque
+- **Receivable**: Contas a receber
+- **Payable**: Contas a pagar
+- **ManagementSetting**: Configurações gerenciais
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Relacionamentos
+
+```
+Sale 1──N SaleItem N──1 Product
+  │                        │
+  │                        │
+  │                        │
+  1                        1
+  │                        │
+  N                        N
+Receivable            StockEntry
+                           │
+                           │
+                           1
+                           │
+                           N
+                        Payable
+```
+
+## 🚀 Instalação
+
+### Requisitos
+
+- PHP 8.2 ou superior
+- Composer
+- Node.js 18+
+- SQLite, MySQL ou PostgreSQL
+
+### Passos
+
+1. Clone o repositório
+```bash
+git clone https://github.com/gustaacoder/construmais.git
+cd construmais
+```
+
+2. Instale as dependências
+```bash
+composer install
+npm install
+```
+
+3. Configure o ambiente
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Execute as migrações
+```bash
+php artisan migrate
+```
+
+5. Inicie o servidor de desenvolvimento
+```bash
+composer dev
+```
+
+Ou individualmente:
+```bash
+php artisan serve
+npm run dev
+```
+
+## 🧪 Testes
+
+Execute os testes com:
+```bash
+composer test
+# ou
+php artisan test
+```
+
+## 📈 Métricas Financeiras
+
+O sistema calcula automaticamente:
+
+- **PMRE** (Prazo Médio de Renovação de Estoque): Tempo médio que os produtos permanecem em estoque
+- **PMRV** (Prazo Médio de Recebimento de Vendas): Tempo médio para receber das vendas
+- **PMPF** (Prazo Médio de Pagamento a Fornecedores): Tempo médio para pagar fornecedores
+- **Ciclo Operacional**: PMRE + PMRV
+- **Ciclo de Caixa**: Ciclo Operacional - PMPF
+- **Caixa Mínimo Necessário**: Calculado com base no ciclo de caixa
+
+## 🔒 Segurança
+
+- Validação de dados em todas as entradas
+- Proteção CSRF ativa
+- Autenticação via Filament
+- Transações de banco de dados para operações críticas
+
+## 📝 Boas Práticas Implementadas
+
+1. **SOLID Principles**
+   - Single Responsibility: Cada classe tem uma responsabilidade única
+   - Open/Closed: Extensível via interfaces
+   - Liskov Substitution: Implementações podem ser substituídas
+   - Interface Segregation: Interfaces específicas
+   - Dependency Inversion: Dependência de abstrações
+
+2. **DRY (Don't Repeat Yourself)**
+   - Lógica reutilizável em Actions e Services
+   - DTOs para evitar duplicação de cálculos
+
+3. **Clean Code**
+   - Nomes descritivos
+   - Métodos pequenos e focados
+   - Comentários apenas onde necessário
+   - Tipagem forte
+
+4. **Performance**
+   - Eager loading para evitar N+1 queries
+   - Índices de banco de dados otimizados
+   - Uso de scopes para queries reutilizáveis
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Por favor:
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+## 👥 Autores
+
+- **gustaacoder** - *Desenvolvimento inicial*
+
+## 🙏 Agradecimentos
+
+- Laravel Framework
+- Filament Admin Panel
+- Comunidade PHP/Laravel

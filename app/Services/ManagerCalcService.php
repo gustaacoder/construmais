@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Contracts\FinancialMetricsServiceInterface;
 use App\Models\{Sale, StockEntry, ManagementSetting, Payable, Receivable};
 use Illuminate\Support\Carbon;
 
-class ManagerCalcService
+class ManagerCalcService implements FinancialMetricsServiceInterface
 {
     public function compute(Carbon $from, Carbon $to): array
     {
@@ -18,7 +19,7 @@ class ManagerCalcService
 
     public function pmre(Carbon $from, Carbon $to): float
     {
-        $sales = Sale::with('items')
+        $sales = Sale::with(['items.product', 'items.product.stockEntries'])
             ->whereBetween('sale_date', [$from, $to])
             ->get();
 
@@ -26,9 +27,9 @@ class ManagerCalcService
 
         foreach ($sales as $sale) {
             foreach ($sale->items as $it) {
-                $entry = StockEntry::where('product_id', $it->product_id)
-                    ->whereDate('entry_date', '<=', $sale->sale_date)
-                    ->orderBy('entry_date', 'desc')
+                $entry = $it->product->stockEntries
+                    ->where('entry_date', '<=', $sale->sale_date)
+                    ->sortByDesc('entry_date')
                     ->first();
 
                 if ($entry) {
