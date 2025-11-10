@@ -2,14 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\{Sale, StockEntry, ManagementSetting};
+use App\Models\{Sale, StockEntry, ManagementSetting, Payable, Receivable};
 use Illuminate\Support\Carbon;
 
 class ManagerCalcService
 {
-    /**
-     * Retorna PMRE, PMRV e PMPF para um período.
-     */
     public function compute(Carbon $from, Carbon $to): array
     {
         $pmre = $this->pmre($from, $to);
@@ -19,10 +16,6 @@ class ManagerCalcService
         return compact('pmre', 'pmrv', 'pmpf');
     }
 
-    /**
-     * PMRE (Prazo Médio de Renovação de Estoques):
-     * média dos dias entre a entrada do produto e a venda (por item vendido).
-     */
     public function pmre(Carbon $from, Carbon $to): float
     {
         $sales = Sale::with('items')
@@ -35,11 +28,13 @@ class ManagerCalcService
             foreach ($sale->items as $it) {
                 $entry = StockEntry::where('product_id', $it->product_id)
                     ->whereDate('entry_date', '<=', $sale->sale_date)
-                    ->orderBy('entry_date') // heurística simples: 1ª entrada <= venda
+                    ->orderBy('entry_date', 'desc')
                     ->first();
 
                 if ($entry) {
-                    $days[] = Carbon::parse($sale->sale_date)->diffInDays($entry->entry_date);
+                    $saleDate = Carbon::parse($sale->sale_date);
+                    $entryDate = Carbon::parse($entry->entry_date);
+                    $days[] = round(($saleDate->timestamp - $entryDate->timestamp) / 86400);
                 }
             }
         }
@@ -47,43 +42,40 @@ class ManagerCalcService
         return $days ? round(array_sum($days) / count($days), 2) : 0.0;
     }
 
-    /**
-     * PMRV (Prazo Médio de Recebimento de Vendas):
-     * usa termos padrão por forma de pagamento, podendo sobrescrever com custom_terms.
-     */
     public function pmrv(Carbon $from, Carbon $to): float
     {
-        // Padrões (ajuste se quiser)
-        $map = ['pix' => 0, 'debit' => 0, 'credit' => 30];
+        $receivables = Receivable::whereBetween('issue_date', [$from, $to])->get();
 
-        $sales = Sale::whereBetween('sale_date', [$from, $to])->get();
-        if ($sales->isEmpty()) {
+        if ($receivables->isEmpty()) {
             return 0.0;
         }
 
-        $avg = $sales->avg(function (Sale $s) use ($map) {
-            return $s->custom_terms ?? ($map[$s->payment_method] ?? 0);
+        $avg = $receivables->avg(function (Receivable $r) {
+            $issueDate = Carbon::parse($r->issue_date);
+            $dueDate = Carbon::parse($r->due_date);
+            return ($dueDate->timestamp - $issueDate->timestamp) / 86400;
         });
 
         return round((float) $avg, 2);
     }
 
-    /**
-     * PMPF (Prazo Médio de Pagamento a Fornecedores):
-     * média dos supplier_payment_terms das entradas no período.
-     */
     public function pmpf(Carbon $from, Carbon $to): float
     {
-        $terms = StockEntry::whereBetween('entry_date', [$from, $to])
-            ->pluck('supplier_payment_terms');
+        $payables = Payable::whereBetween('issue_date', [$from, $to])->get();
 
-        return $terms->isEmpty() ? 0.0 : round((float) $terms->avg(), 2);
+        if ($payables->isEmpty()) {
+            return 0.0;
+        }
+
+        $avg = $payables->avg(function (Payable $p) {
+            $issueDate = Carbon::parse($p->issue_date);
+            $dueDate = Carbon::parse($p->due_date);
+            return ($dueDate->timestamp - $issueDate->timestamp) / 86400;
+        });
+
+        return round((float) $avg, 2);
     }
 
-    /**
-     * Ciclos: Operacional e de Caixa.
-     * OC = PMRE + PMRV ;  CCC = OC - PMPF
-     */
     public function cycles(float $pmre, float $pmrv, float $pmpf): array
     {
         $oper = $pmre + $pmrv;
@@ -95,10 +87,6 @@ class ManagerCalcService
         ];
     }
 
-    /**
-     * Saldo Mínimo de Caixa:
-     * SMC = Previsão de Gastos / (CCC / 360). Retorna null se CCC = 0.
-     */
     public function minCash(float $cashCycleDays, float $expenseForecastYear): ?float
     {
         if ($cashCycleDays == 0.0) {

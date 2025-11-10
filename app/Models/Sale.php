@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'sale_date',
         'customer_id',
@@ -54,12 +57,10 @@ class Sale extends Model
         $surcharge = (float) ($this->surcharge_total ?? 0);
         $grand = max(0, $subtotal - $discount + $surcharge);
 
-        $this->forceFill([
-            'subtotal'       => round($subtotal, 2),
-            'discount_total' => round($discount, 2),
-            'surcharge_total'=> round($surcharge, 2),
-            'grand_total'    => round($grand, 2),
-        ])->save();
+        $this->subtotal = round($subtotal, 2);
+        $this->discount_total = round($discount, 2);
+        $this->surcharge_total = round($surcharge, 2);
+        $this->grand_total = round($grand, 2);
     }
 
     public function scopeConfirmed($q) { return $q->where('status', 'confirmed'); }

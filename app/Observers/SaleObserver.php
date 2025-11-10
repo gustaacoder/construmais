@@ -11,15 +11,11 @@ class SaleObserver
 {
     public function saving(Sale $sale): void
     {
-        if ($sale->exists) {
-            $sale->recalcTotals();
-        }
+        $sale->recalcTotals();
     }
 
     public function saved(Sale $sale): void
     {
-        $sale->recalcTotals();
-
         if ($sale->status === 'confirmed') {
             $this->syncReceivables($sale);
         } else {

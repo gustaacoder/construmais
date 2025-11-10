@@ -42,7 +42,13 @@ class PayableResource extends Resource
                     ->prefix('R$')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
+                    ->label(__('Status'))
+                    ->options([
+                        'open' => __('Open'),
+                        'paid' => __('Paid'),
+                        'overdue' => __('Overdue'),
+                    ])
                     ->required(),
             ]);
     }
@@ -68,9 +74,15 @@ class PayableResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->label(__('Amount'))
-                    ->numeric()
+                    ->money('BRL')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'open' => 'warning',
+                        'paid' => 'success',
+                        'overdue' => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

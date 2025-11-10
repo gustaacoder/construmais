@@ -184,5 +184,13 @@
     "Invoice Series": "Série da Fatura",
     "Batch": "Lote",
     "Expiration Date": "Data de Validade",
-    "Warehouse": "Armazém"
+    "Warehouse": "Armazém",
+    "Management Dashboard": "Dashboard de Gerenciamento",
+    "Avg. inventory days": "Prazo Médio de Renovação de Estoques",
+    "Avg. receivables days": "Prazo Médio de Recebimento de Vendas",
+    "Avg. payables days": "Prazo Médio de Pagamento a Fornecedores",
+    "Operating Cycle": "Ciclo Operacional",
+    "Cash Cycle": "Ciclo de Caixa",
+    "Min. Cash": "Saldo Mínimo de Caixa",
+    "Expense / (CCC/360)": "Gastos / (CCC/360)"
 }
